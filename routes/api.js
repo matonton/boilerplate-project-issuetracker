@@ -111,12 +111,13 @@ module.exports = function (app) {
     .put(function (req, res) {
       let project = req.params.project;
       // handle errors for incorrect submissions
+      console.log(req.body);
       if (!req.body._id) return res.json({ error: 'missing _id' });
       if (!req.body.issue_title && !req.body.issue_text && !req.body.created_by && !req.body.assigned_to && !req.body.status_text) return res.json({ error: 'no update field(s) sent' })
 
-      // TODO: add update params after _id
+      // add update params after _id
       // ex) Person.findOneAndUpdate({ name: personName }, { age: 20 }, { new: true }, function(err, person)...
-      IssueModel.findOneAndUpdate({ _id: req.body._id }, { issue_title: req.body.issue_title}, function (err, result) {
+      IssueModel.findById(req.body._id, function (err, result) {
         // handle error when cannot update
         if (err) {
           console.log(err);
@@ -124,7 +125,17 @@ module.exports = function (app) {
         };
         if (!result) return res.json({ error: 'could not update', '_id': req.body._id });
         // submit update form data, returns success json
-        res.json({ result: 'successfully updated', '_id': req.body._id })
+        result.issue_title = req.body.issue_title;
+        result.issue_text = req.body.issue_text;
+        result.created_by = req.body.created_by;
+        result.assigned_to = req.body.assigned_to;
+        result.status_text = req.body.status_text;
+        if (req.body.open) result.open = false;
+        result.save(function (err, updatedIssue) {
+          if (err) return console.log(err);
+          res.json({ result: 'successfully updated', '_id': req.body._id });
+          // done(null, updatedIssue);
+        })
       });
     })
 
