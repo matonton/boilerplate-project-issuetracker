@@ -10,13 +10,13 @@ module.exports = function (app) {
   // build schema
   var issueSchema = new mongoose.Schema({
     assigned_to: String,
-    status_text: String,	
-    open:	Boolean,
+    status_text: String,
+    open: Boolean,
     issue_title: String,
     issue_text: String,
-    created_by: String,	
-    created_on:	{ type: Date, default: Date.now },
-    updated_on:	{ type: Date, default: Date.now }
+    created_by: String,
+    created_on: { type: Date, default: Date.now },
+    updated_on: { type: Date, default: Date.now }
   });
 
   // build model
@@ -24,10 +24,10 @@ module.exports = function (app) {
 
   app.route('/api/issues/:project')
 
-    .get(function (req, res){
+    .get(function (req, res) {
       // capture project name, will be 'apitest'
       let project = req.params.project;
-      
+
       // GET route that returns all data /api/issues/apitest
       // perform a query on mongoDB, with no parameters
       var issues = IssueModel.find({}, function (err, result) {
@@ -50,28 +50,28 @@ module.exports = function (app) {
       } else {
         qTo = new Date();
 
-/*       IssueModel.findById({ _id: req.params._id }, function (err, result) {
-      if (err) console.error(err);
-      // must include count property
-      var filtered = result.log.filter(function (e, i, a) {
-        var exDate = new Date(e.date);
-        return exDate >= qFrom && exDate <= qTo;
-      });
-      if (req.query.limit) {
-        filtered = filtered.slice(0, req.query.limit);
-      }
-      //res.json({ _id: result._id, username: result.username, count: result.log.length, log: filtered });
-      res.json(result);
-      }) */
-    };
+        /* IssueModel.findById({ _id: req.params._id }, function (err, result) {
+        if (err) console.error(err);
+        // must include count property
+        var filtered = result.log.filter(function (e, i, a) {
+          var exDate = new Date(e.date);
+          return exDate >= qFrom && exDate <= qTo;
+        });
+        if (req.query.limit) {
+          filtered = filtered.slice(0, req.query.limit);
+        }
+        //res.json({ _id: result._id, username: result.username, count: result.log.length, log: filtered });
+        res.json(result);
+        }) */
+      };
 
 
     })
-    
-    .post(function (req, res){
+
+    .post(function (req, res) {
       let project = req.params.project;
       // missing required fields, returns error: required field(s) missing
-      if ( !req.body.issue_title || !req.body.issue_text || !req.body.created_by ) {
+      if (!req.body.issue_title || !req.body.issue_text || !req.body.created_by) {
         res.json({ error: 'required field(s) missing' });
         return;
 
@@ -79,10 +79,10 @@ module.exports = function (app) {
 
       // submit create form data, returns created object
       // create document for new user based on form data
-      var newIssue = new IssueModel({ 
-        assigned_to: req.body.assigned_to, 
-        status_text: req.body.status_text,	
-        open:	true,
+      var newIssue = new IssueModel({
+        assigned_to: req.body.assigned_to,
+        status_text: req.body.status_text,
+        open: true,
         issue_title: req.body.issue_title,
         issue_text: req.body.issue_text,
         created_by: req.body.created_by
@@ -95,7 +95,8 @@ module.exports = function (app) {
       console.log(newIssue._id);
       var _id = newIssue._id;
 
-      res.json({ assigned_to: newIssue.assigned_to,
+      res.json({
+        assigned_to: newIssue.assigned_to,
         status_text: newIssue.status_text,
         open: newIssue.open,
         _id: newIssue._id,
@@ -106,8 +107,8 @@ module.exports = function (app) {
         updated_on: newIssue.updated_on
       });
     })
-    
-    .put(function (req, res){
+
+    .put(function (req, res) {
       let project = req.params.project;
       // handle errors for incorrect submissions
       if (!req.body._id) return res.json({ error: 'missing _id' });
@@ -115,34 +116,34 @@ module.exports = function (app) {
 
       // TODO: add update params after _id
       // ex) Person.findOneAndUpdate({ name: personName }, { age: 20 }, { new: true }, function(err, person)...
-      IssueModel.findOneAndUpdate({ _id: req.body._id }, issue_title : req.body.issue_title , function(err, result) {
-       // handle error when cannot update
-      if (err) {
+      IssueModel.findOneAndUpdate({ _id: req.body._id }, { issue_title: req.body.issue_title}, function (err, result) {
+        // handle error when cannot update
+        if (err) {
           console.log(err);
-          return res.json({ error: 'could not update' , '_id' : req.body._id });
+          return res.json({ error: 'could not update', '_id': req.body._id });
         };
-        if (!result) return res.json({ error : 'could not update', '_id' : req.body._id });
+        if (!result) return res.json({ error: 'could not update', '_id': req.body._id });
         // submit update form data, returns success json
         res.json({ result: 'successfully updated', '_id': req.body._id })
       });
     })
-    
-    .delete(function (req, res){
+
+    .delete(function (req, res) {
       let project = req.params.project;
       // handle errors for incorrect submission
-      if ( !req.body._id ) return res.json({ error: 'missing _id' });
-  
+      if (!req.body._id) return res.json({ error: 'missing _id' });
+
       // delete request, returns success or failure
       console.log(req.body);
-      IssueModel.findOneAndRemove({ _id: req.body._id }, function(err, result) {
+      IssueModel.findOneAndRemove({ _id: req.body._id }, function (err, result) {
         if (err) {
           console.log(err);
-          return res.json({ error: 'could not delete' , '_id' : req.body._id });
+          return res.json({ error: 'could not delete', '_id': req.body._id });
         };
-        if (!result) return res.json({ error : 'could not delete', '_id' : req.body._id });
-        res.json({ result : 'successfully deleted', '_id': req.body._id });
+        if (!result) return res.json({ error: 'could not delete', '_id': req.body._id });
+        res.json({ result: 'successfully deleted', '_id': req.body._id });
       });
 
     });
-    
+
 };
