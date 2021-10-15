@@ -29,44 +29,53 @@ module.exports = function (app) {
       let project = req.params.project;
 
       // GET route that returns all data /api/issues/apitest
-      // perform a query on mongoDB, with no parameters
-      var issues = IssueModel.find({}, function (err, result) {
-        if (err) return console.error(err);
-        // console.log(result);
-        res.json(result);
+      if (!req.query) {
+        // perform a query on mongoDB, with no parameters
+        var issues = IssueModel.find({}, function (err, result) {
+          if (err) return console.error(err);
+          // console.log(result);
+          return res.json(result);
+        });
+      };
+
+      // can filter using standard query
+      // filter results using filter after returning all
+      // use req.query to access
+
+      console.log(req.query, typeof req.query);
+      // identify queries submitted
+      let properties = ["assigned_to", "_id", "status_text", "open", "issue_title", "issue_text", "created_by", "created_on", "updated_on"];
+      let queries = Object.keys(req.query);
+      // for valid queries, add to filter stack
+      let pass = queries.filter(function (e, i, a) {
+        // console.log(e, properties.includes(e));
+        return properties.includes(e);
+      });
+      console.log(pass);
+
+      // create new object with passing properties and values
+      let query = {};
+
+      pass.forEach(function (e, i, a) {
+        console.log(e, typeof e, req.query[e], typeof req.query[e]);
+        // Object.defineProperty(query, e, { value: req.query[e] });
+        query[e] = req.query[e];
       });
 
-      // TODO: can filter using standard query
-      // can use parameters to limit in # of records in search
-      // use req.query to access these
-      var qFrom, qTo, qLimit;
-      if (req.query.from) {
-        qFrom = new Date(req.query.from);
-      } else {
-        qFrom = new Date(1900, 0);
-      };
-      if (req.query.to) {
-        qTo = new Date(req.query.to);
-      } else {
-        qTo = new Date();
+      console.log(query);
 
-        /* IssueModel.findById({ _id: req.params._id }, function (err, result) {
-        if (err) console.error(err);
-        // must include count property
-        var filtered = result.log.filter(function (e, i, a) {
-          var exDate = new Date(e.date);
-          return exDate >= qFrom && exDate <= qTo;
-        });
-        if (req.query.limit) {
-          filtered = filtered.slice(0, req.query.limit);
-        }
-        //res.json({ _id: result._id, username: result.username, count: result.log.length, log: filtered });
-        res.json(result);
-        }) */
-      };
+      // new MongoDB query using properties in new object
+      var filtered = IssueModel.find(query, function (err, result) {
+        if (err) return console.error(err);
+        // console.log(result);
+        return res.json(result);
+      });
 
+      // return on overall issues find mongo query
+      // return res.json(filtered);
 
     })
+
 
     .post(function (req, res) {
       let project = req.params.project;
