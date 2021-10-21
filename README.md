@@ -21,9 +21,9 @@ Write the following tests in tests/2_functional-tests.js:
 * Update an issue with missing `_id`: `PUT` request to `/api/issues/{project}`
 * Update an issue with no fields to update: `PUT` request to `/api/issues/{project}`
 * Update an issue with an invalid `_id`: `PUT` request to `/api/issues/{project}`
-* Delete an issue: `DELETE` request to `/api/issues/{project}`
-* Delete an issue with an invalid `_id`: `DELETE` request to `/api/issues/{project}`
-* Delete an issue with missing `_id`: `DELETE` request to `/api/issues/{project}`
+* Delete an issue: DELETE request to `/api/issues/{project}`
+* Delete an issue with an invalid `_id`: DELETE request to `/api/issues/{project}`
+* Delete an issue with missing `_id`: DELETE request to `/api/issues/{project}`
 
 ---
 ## Tests
